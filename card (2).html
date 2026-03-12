@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tarjeta Personal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,#1a1612 0%,#2a2018 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:16px}
+.card{width:min(360px,100%);border-radius:28px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.5),0 0 0 1px rgba(201,168,76,.15)}
+.hdr{height:140px;position:relative;display:flex;align-items:flex-end;padding:0 24px 20px}
+.hdr::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.05),rgba(0,0,0,.6))}
+.hname{font-family:'Playfair Display',serif;color:#fff;font-size:2rem;font-weight:900;position:relative;z-index:1;text-shadow:0 2px 12px rgba(0,0,0,.5);line-height:1.1}
+.bdy{background:#fff;padding:22px 24px 28px}
+.job{font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;color:#b5451b;font-weight:700;margin-bottom:10px}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.pill{font-size:.73rem;background:rgba(181,69,27,.1);color:#b5451b;padding:4px 12px;border-radius:20px;font-weight:500}
+.desc{font-size:.85rem;color:#555;line-height:1.65;border-left:2px solid #c9a84c;padding-left:12px;margin-bottom:16px;font-style:italic}
+.divider{border:none;border-top:1px solid #f0ebe0;margin:14px 0}
+.soc{display:flex;align-items:center;gap:10px;text-decoration:none;color:#2e5d8a;font-size:.85rem;word-break:break-all}
+.soc-icon{width:32px;height:32px;border-radius:50%;background:#0d0d0d;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.foot{font-size:.65rem;color:#ccc;letter-spacing:.15em;text-align:center;margin-top:16px;text-transform:uppercase}
+.back-btn{color:#c9a84c;font-size:.78rem;text-decoration:none;border:1px solid rgba(201,168,76,.3);padding:9px 22px;border-radius:10px;letter-spacing:.08em;transition:background .2s}
+.back-btn:hover{background:rgba(201,168,76,.1)}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="hdr" id="hdr">
+    <div class="hname" id="hname"></div>
+  </div>
+  <div class="bdy">
+    <div class="job" id="job"></div>
+    <div class="pills" id="pills"></div>
+    <div class="desc" id="desc" style="display:none"></div>
+    <hr class="divider" id="div2" style="display:none">
+    <a class="soc" id="soc" href="#" target="_blank" style="display:none">
+      <div class="soc-icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </div>
+      <span id="soc_txt"></span>
+    </a>
+    <div class="foot">✦ Tarjeta Digital Personal</div>
+  </div>
+</div>
+
+
+
+<script>
+var p=new URLSearchParams(window.location.search);
+var name=p.get('n')||'Sin nombre';
+var age=p.get('a'); var sex=p.get('s'); var job=p.get('j');
+var soc=p.get('r'); var desc=p.get('d'); var color=p.get('c')||'#1a1a2e';
+
+document.title=name;
+document.getElementById('hname').textContent=name;
+document.getElementById('hdr').style.background=color;
+
+if(job) document.getElementById('job').textContent=job;
+
+var pills=document.getElementById('pills');
+if(age){var sp=document.createElement('span');sp.className='pill';sp.textContent=age+' años';pills.appendChild(sp);}
+if(sex){var sp=document.createElement('span');sp.className='pill';sp.textContent=sex;pills.appendChild(sp);}
+if(!age&&!sex) pills.style.display='none';
+
+if(desc){var d=document.getElementById('desc');d.textContent=desc;d.style.display='block';}
+
+if(soc){
+  var href=soc.startsWith('http')?soc:(soc.startsWith('@')?'https://instagram.com/'+soc.slice(1):'https://'+soc);
+  document.getElementById('soc').href=href;
+  document.getElementById('soc_txt').textContent=soc;
+  document.getElementById('soc').style.display='flex';
+  document.getElementById('div2').style.display='block';
+}
+</script>
+</body>
+</html>
