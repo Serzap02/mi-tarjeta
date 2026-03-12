@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi Tarjeta Personal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0d0d0d;--cream:#f5f0e8;--gold:#c9a84c;--rust:#b5451b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#1a1612;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px;background-image:radial-gradient(ellipse at 20% 20%,rgba(201,168,76,.08),transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(181,69,27,.06),transparent 60%)}
+h1.main-title{font-family:'Playfair Display',serif;color:var(--gold);font-size:1.1rem;letter-spacing:.35em;text-transform:uppercase;margin-bottom:32px;opacity:.85}
+.tabs{display:flex;gap:4px;background:rgba(255,255,255,.05);border-radius:12px;padding:4px;margin-bottom:28px}
+.tab{padding:10px 28px;border-radius:8px;border:none;background:transparent;color:rgba(255,255,255,.4);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:all .25s}
+.tab.active{background:var(--gold);color:var(--ink)}
+.editor-wrap{width:min(560px,100%);background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.15);border-radius:20px;padding:28px;display:none;flex-direction:column;gap:18px}
+.editor-wrap.visible{display:flex}
+.field-row{display:flex;flex-direction:column;gap:6px}
+label{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);opacity:.75}
+input,textarea,select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:12px 16px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:100%;resize:none}
+input:focus,textarea:focus,select:focus{border-color:var(--gold)}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,.2)}
+select option{background:#2a2520;color:#fff}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.photo-zone{display:flex;align-items:center;gap:20px}
+.photo-circle{width:88px;height:88px;border-radius:50%;border:2px dashed rgba(201,168,76,.4);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;transition:border-color .2s;position:relative}
+.photo-circle:hover{border-color:var(--gold)}
+.photo-circle img{width:100%;height:100%;object-fit:cover;position:absolute;border-radius:50%}
+.photo-circle svg{opacity:.35}
+.photo-hint{color:rgba(255,255,255,.35);font-size:.8rem;line-height:1.6}
+.photo-hint span{color:var(--gold);cursor:pointer}
+#fileInput{display:none}
+.palette{display:flex;gap:10px;flex-wrap:wrap}
+.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .2s,border-color .2s;flex-shrink:0}
+.swatch.selected{border-color:#fff;transform:scale(1.2)}
+.btn-gen{padding:15px;background:linear-gradient(135deg,var(--gold),var(--rust));border:none;border-radius:12px;color:#fff;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;letter-spacing:.06em;cursor:pointer;transition:opacity .2s,transform .15s;margin-top:4px}
+.btn-gen:hover{opacity:.9;transform:translateY(-1px)}
+.preview-wrap{display:none;flex-direction:column;align-items:center;gap:24px}
+.preview-wrap.visible{display:flex}
+.card{width:min(400px,100%);border-radius:24px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(201,168,76,.2)}
+.card-header{height:120px;position:relative;display:flex;align-items:flex-end;padding:0 24px 16px}
+.card-header::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.05),rgba(0,0,0,.55))}
+.card-name{font-family:'Playfair Display',serif;color:#fff;font-size:1.6rem;font-weight:900;line-height:1.1;position:relative;z-index:1;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.card-body{background:var(--cream);padding:20px 24px 24px;position:relative}
+.avatar-wrap{position:absolute;top:-44px;right:22px;width:84px;height:84px;border-radius:50%;border:3px solid var(--cream);overflow:hidden;background:#ddd;box-shadow:0 4px 20px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:2rem}
+.avatar-wrap img{width:100%;height:100%;object-fit:cover}
+.card-badge{display:flex;align-items:center;gap:6px;margin-bottom:10px;margin-top:2px;flex-wrap:wrap}
+.badge-job{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rust);font-weight:600}
+.badge-pill{font-size:.73rem;background:rgba(181,69,27,.12);color:var(--rust);padding:2px 9px;border-radius:20px;font-weight:500}
+.card-desc{font-size:.83rem;color:#555;line-height:1.65;border-left:2px solid var(--gold);padding-left:10px;margin-bottom:14px}
+.card-divider{border:none;border-top:1px solid rgba(0,0,0,.08);margin:12px 0}
+.card-info{display:flex;flex-direction:column;gap:7px}
+.info-row{display:flex;align-items:center;gap:9px;font-size:.82rem;color:var(--ink)}
+.info-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.qr-box{background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.15);border-radius:20px;padding:24px 28px;display:flex;flex-direction:column;align-items:center;gap:14px;width:min(400px,100%)}
+.qr-box h3{font-family:'Playfair Display',serif;color:var(--gold);font-size:1rem;letter-spacing:.08em}
+.qr-img-wrap{background:#fff;border-radius:12px;padding:10px;line-height:0}
+.qr-img-wrap img{width:220px;height:220px;display:block;border-radius:6px}
+.qr-hint{font-size:.77rem;color:rgba(255,255,255,.3);text-align:center;line-height:1.6}
+.qr-label{font-size:.75rem;color:rgba(201,168,76,.6);text-align:center;line-height:1.5}
+.actions-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn-sec{padding:11px 26px;background:transparent;border:1px solid var(--gold);border-radius:10px;color:var(--gold);font-family:'DM Sans',sans-serif;font-size:.83rem;letter-spacing:.06em;cursor:pointer;transition:all .2s}
+.btn-sec:hover{background:var(--gold);color:var(--ink)}
+.spinner{width:40px;height:40px;border:3px solid rgba(201,168,76,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:10px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){.two-col{grid-template-columns:1fr}.editor-wrap,.qr-box{padding:18px}}
+</style>
+</head>
+<body>
+
+<h1 class="main-title">✦ Tarjeta Personal Digital</h1>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('editor')">✏️ Editar</button>
+  <button class="tab" onclick="showTab('preview')">👁 Ver Tarjeta</button>
+</div>
+
+<div class="editor-wrap visible" id="editorPane">
+  <div class="field-row">
+    <label>Foto de perfil</label>
+    <div class="photo-zone">
+      <div class="photo-circle" id="photoCircle" onclick="document.getElementById('fileInput').click()">
+        <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <div class="photo-hint">Haz clic para subir tu foto.<br><span onclick="document.getElementById('fileInput').click()">Seleccionar imagen →</span></div>
+      <input type="file" id="fileInput" accept="image/*" onchange="loadPhoto(event)">
+    </div>
+  </div>
+  <div class="field-row"><label>Nombre completo *</label><input id="f_name" type="text" placeholder="Ej. Ana García" oninput="liveUpdate()"></div>
+  <div class="two-col">
+    <div class="field-row"><label>Edad</label><input id="f_age" type="number" min="1" max="120" placeholder="28" oninput="liveUpdate()"></div>
+    <div class="field-row"><label>Sexo</label>
+      <select id="f_sex" onchange="liveUpdate()">
+        <option value="">— Seleccionar —</option>
+        <option value="Mujer">Mujer</option>
+        <option value="Hombre">Hombre</option>
+        <option value="No binario">No binario</option>
+        <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+      </select>
+    </div>
+  </div>
+  <div class="field-row"><label>Trabajo / Profesión</label><input id="f_job" type="text" placeholder="Ej. Diseñadora UX en Google" oninput="liveUpdate()"></div>
+  <div class="field-row"><label>Red social</label><input id="f_social" type="text" placeholder="@usuario o URL" oninput="liveUpdate()"></div>
+  <div class="field-row"><label>Descripción corta</label><textarea id="f_desc" rows="2" maxlength="120" placeholder="Máx. 120 caracteres sobre ti..." oninput="liveUpdate()"></textarea></div>
+  <div class="field-row">
+    <label>Color del encabezado</label>
+    <div class="palette">
+      <div class="swatch selected" style="background:#1a1a2e" onclick="pickColor(this,'#1a1a2e')"></div>
+      <div class="swatch" style="background:#0d3b2e" onclick="pickColor(this,'#0d3b2e')"></div>
+      <div class="swatch" style="background:#3b1a0d" onclick="pickColor(this,'#3b1a0d')"></div>
+      <div class="swatch" style="background:#1a0d3b" onclick="pickColor(this,'#1a0d3b')"></div>
+      <div class="swatch" style="background:#2c2c2c" onclick="pickColor(this,'#2c2c2c')"></div>
+      <div class="swatch" style="background:#b5451b" onclick="pickColor(this,'#b5451b')"></div>
+      <div class="swatch" style="background:#c9a84c" onclick="pickColor(this,'#c9a84c')"></div>
+      <div class="swatch" style="background:#2e5d8a" onclick="pickColor(this,'#2e5d8a')"></div>
+    </div>
+  </div>
+  <button class="btn-gen" onclick="generateCard()">Generar Tarjeta + QR ✦</button>
+</div>
+
+<div class="preview-wrap" id="previewPane">
+  <div class="card">
+    <div class="card-header" id="cardHeader" style="background:#1a1a2e">
+      <div class="card-name" id="c_name">Tu Nombre</div>
+    </div>
+    <div class="card-body">
+      <div class="avatar-wrap" id="c_avatarWrap">👤</div>
+      <div class="card-badge">
+        <span class="badge-job" id="c_job"></span>
+        <span class="badge-pill" id="c_age" style="display:none"></span>
+        <span class="badge-pill" id="c_sex" style="display:none"></span>
+      </div>
+      <div class="card-desc" id="c_desc" style="display:none"></div>
+      <hr class="card-divider">
+      <div class="card-info" id="c_info"></div>
+    </div>
+  </div>
+
+  <div class="qr-box">
+    <h3>✦ Código QR</h3>
+    <div class="qr-img-wrap" id="qrWrap">
+      <div class="spinner" id="qrSpinner" style="display:none"></div>
+      <img id="qrimg" src="" alt="QR" style="display:none">
+    </div>
+    <p class="qr-label">Al escanearlo se abre tu tarjeta directamente 📱</p>
+    <p class="qr-hint">Compártelo en papel, redes o donde quieras.</p>
+    <div class="actions-row">
+      <button class="btn-sec" onclick="downloadQR()">⬇ Descargar QR</button>
+      <button class="btn-sec" onclick="showTab('editor')">✏️ Editar datos</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var photoDataURL = '';
+var headerColor  = '#1a1a2e';
+
+function showTab(t){
+  document.querySelectorAll('.tab').forEach(function(el,i){el.classList.toggle('active',(i===0&&t==='editor')||(i===1&&t==='preview'));});
+  document.getElementById('editorPane').classList.toggle('visible',t==='editor');
+  document.getElementById('previewPane').classList.toggle('visible',t==='preview');
+}
+
+function loadPhoto(e){
+  var file=e.target.files[0]; if(!file) return;
+  var r=new FileReader();
+  r.onload=function(ev){
+    photoDataURL=ev.target.result;
+    var circle=document.getElementById('photoCircle');
+    var img=circle.querySelector('img');
+    if(!img){img=document.createElement('img');circle.appendChild(img);}
+    img.src=photoDataURL;
+    liveUpdate();
+  };
+  r.readAsDataURL(file);
+}
+
+function pickColor(el,color){
+  document.querySelectorAll('.swatch').forEach(function(s){s.classList.remove('selected');});
+  el.classList.add('selected'); headerColor=color; liveUpdate();
+}
+
+function v(id){return document.getElementById(id).value.trim();}
+
+function liveUpdate(){
+  var name=v('f_name')||'Tu Nombre';
+  var age=v('f_age'); var sex=v('f_sex'); var job=v('f_job'); var soc=v('f_social'); var desc=v('f_desc');
+  document.getElementById('c_name').textContent=name;
+  document.getElementById('cardHeader').style.background=headerColor;
+  document.getElementById('c_job').textContent=job;
+  var ageEl=document.getElementById('c_age');
+  if(age){ageEl.textContent=age+' años';ageEl.style.display='inline';}else ageEl.style.display='none';
+  var sexEl=document.getElementById('c_sex');
+  if(sex){sexEl.textContent=sex;sexEl.style.display='inline';}else sexEl.style.display='none';
+  var descEl=document.getElementById('c_desc');
+  if(desc){descEl.textContent=desc;descEl.style.display='block';}else descEl.style.display='none';
+  var wrap=document.getElementById('c_avatarWrap');
+  wrap.innerHTML=photoDataURL?'<img src="'+photoDataURL+'" alt="foto">':'👤';
+  var rows=[];
+  if(soc) rows.push('📱 '+soc);
+  document.getElementById('c_info').innerHTML=rows.map(function(r){return'<div class="info-row"><div class="info-dot"></div><span>'+r+'</span></div>';}).join('');
+}
+
+/* Construye una mini página HTML que se abrirá al escanear el QR */
+function buildCardPage(){
+  var name=v('f_name')||'Sin nombre';
+  var age=v('f_age'); var sex=v('f_sex'); var job=v('f_job');
+  var soc=v('f_social'); var desc=v('f_desc');
+  var color=headerColor;
+
+  var pills='';
+  if(age) pills+='<span class="pill">'+age+' años</span>';
+  if(sex) pills+='<span class="pill">'+sex+'</span>';
+
+  var socHtml='';
+  if(soc){
+    var href=soc.startsWith('http')?soc:(soc.startsWith('@')?'https://instagram.com/'+soc.slice(1):'https://'+soc);
+    socHtml='<a class="social" href="'+href+'" target="_blank">'+soc+'</a>';
+  }
+
+  var descHtml=desc?'<p class="desc">'+desc+'</p>':'';
+  var jobHtml=job?'<div class="job">'+job+'</div>':'';
+
+  /* Foto en base64 si la hay, si no, emoji */
+  var avatarHtml=photoDataURL
+    ?'<img class="avatar" src="'+photoDataURL+'" alt="foto">'
+    :'<div class="avatar-emoji">👤</div>';
+
+  return '<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+name+'</title>'
+  +'<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">'
+  +'<style>'
+  +'*{margin:0;padding:0;box-sizing:border-box}'
+  +'body{font-family:DM Sans,sans-serif;background:#f5f0e8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}'
+  +'.card{width:min(380px,100%);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.15)}'
+  +'.header{height:110px;background:'+color+';position:relative;display:flex;align-items:flex-end;padding:0 22px 14px}'
+  +'.header::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent,rgba(0,0,0,.5))}'
+  +'.hname{font-family:Playfair Display,serif;color:#fff;font-size:1.7rem;font-weight:900;position:relative;z-index:1;text-shadow:0 2px 8px rgba(0,0,0,.4)}'
+  +'.body{background:#fff;padding:18px 22px 26px;position:relative}'
+  +'.avatar{width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #fff;position:absolute;top:-40px;right:20px;box-shadow:0 4px 16px rgba(0,0,0,.2)}'
+  +'.avatar-emoji{width:80px;height:80px;border-radius:50%;background:#e8e2d6;border:3px solid #fff;position:absolute;top:-40px;right:20px;display:flex;align-items:center;justify-content:center;font-size:2rem;box-shadow:0 4px 16px rgba(0,0,0,.15)}'
+  +'.job{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:#b5451b;font-weight:600;margin-bottom:6px;margin-top:2px}'
+  +'.pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}'
+  +'.pill{font-size:.73rem;background:rgba(181,69,27,.1);color:#b5451b;padding:3px 10px;border-radius:20px}'
+  +'.desc{font-size:.84rem;color:#555;line-height:1.6;border-left:2px solid #c9a84c;padding-left:10px;margin-bottom:14px}'
+  +'hr{border:none;border-top:1px solid #eee;margin:12px 0}'
+  +'.social{display:block;font-size:.85rem;color:#2e5d8a;text-decoration:none;word-break:break-all}'
+  +'.social:hover{text-decoration:underline}'
+  +'.footer{margin-top:18px;text-align:center;font-size:.7rem;color:#bbb;letter-spacing:.1em}'
+  +'</style></head><body>'
+  +'<div class="card">'
+  +'<div class="header"><div class="hname">'+name+'</div></div>'
+  +'<div class="body">'
+  +avatarHtml
+  +jobHtml
+  +(pills?'<div class="pills">'+pills+'</div>':'')
+  +descHtml
+  +(socHtml?'<hr>'+socHtml:'')
+  +'<div class="footer">✦ Tarjeta Digital</div>'
+  +'</div></div>'
+  +'</body></html>';
+}
+
+function generateCard(){
+  liveUpdate();
+
+  /* Creamos la página de la tarjeta y la codificamos en base64 como data URL */
+  var html = buildCardPage();
+  var b64  = btoa(unescape(encodeURIComponent(html)));
+  var dataURL = 'data:text/html;base64,' + b64;
+
+  /* El QR apunta a esa data URL */
+  var qrData  = encodeURIComponent(dataURL);
+  var qrSrc   = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&ecc=L&data=' + qrData;
+
+  var img     = document.getElementById('qrimg');
+  var spinner = document.getElementById('qrSpinner');
+
+  spinner.style.display='block';
+  img.style.display='none';
+
+  img.onload=function(){spinner.style.display='none';img.style.display='block';};
+  img.onerror=function(){
+    spinner.style.display='none';
+    img.style.display='none';
+    // data URL es demasiado larga para QR → fallback: texto simple
+    var fallback='https://api.qrserver.com/v1/create-qr-code/?size=220x220&ecc=L&data='+encodeURIComponent(
+      (v('f_name')||'Tarjeta')+' | '+(v('f_job')||'')+(v('f_social')?' | '+v('f_social'):'')
+    );
+    img.onload=function(){spinner.style.display='none';img.style.display='block';
+      document.querySelector('.qr-label').textContent='⚠ QR simplificado (datos muy extensos)';};
+    img.onerror=function(){document.querySelector('.qr-label').textContent='Error generando QR. Comprueba conexión.';};
+    img.src=fallback;
+  };
+  img.src=qrSrc;
+
+  showTab('preview');
+}
+
+function downloadQR(){
+  var img=document.getElementById('qrimg');
+  if(!img.src||!img.naturalWidth){alert('Primero genera la tarjeta.');return;}
+  fetch(img.src).then(function(r){return r.blob();}).then(function(b){
+    var u=URL.createObjectURL(b);var a=document.createElement('a');a.href=u;a.download='mi-qr.png';a.click();URL.revokeObjectURL(u);
+  }).catch(function(){window.open(img.src,'_blank');});
+}
+
+liveUpdate();
+</script>
+</body>
+</html>
