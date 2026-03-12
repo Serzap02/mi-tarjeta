@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear Tarjeta</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#1a1612;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+h1{font-family:'Playfair Display',serif;color:#c9a84c;font-size:1rem;letter-spacing:.35em;text-transform:uppercase;margin-bottom:28px;opacity:.85}
+.box{width:min(500px,100%);background:rgba(255,255,255,.03);border:1px solid rgba(201,168,76,.2);border-radius:20px;padding:28px;display:flex;flex-direction:column;gap:16px}
+.row{display:flex;flex-direction:column;gap:5px}
+.row label{font-size:.68rem;letter-spacing:.15em;text-transform:uppercase;color:#c9a84c;opacity:.7}
+.row input,.row textarea,.row select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;color:#fff;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;width:100%;resize:none}
+.row input:focus,.row textarea:focus,.row select:focus{border-color:#c9a84c}
+.row input::placeholder,.row textarea::placeholder{color:rgba(255,255,255,.2)}
+select option{background:#2a2520}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.palette{display:flex;gap:8px;flex-wrap:wrap}
+.sw{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .2s}
+.sw.on{border-color:#fff;transform:scale(1.2)}
+.btn{padding:15px;background:linear-gradient(135deg,#c9a84c,#b5451b);border:none;border-radius:12px;color:#fff;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.05em}
+.btn:hover{opacity:.9}
+/* resultado */
+.res{display:none;width:min(500px,100%);background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.2);border-radius:20px;padding:28px;flex-direction:column;align-items:center;gap:14px;margin-top:24px}
+.res.show{display:flex}
+.res h2{font-family:'Playfair Display',serif;color:#c9a84c;font-size:1rem;letter-spacing:.1em}
+.qrwrap{background:#fff;border-radius:12px;padding:10px}
+.qrwrap img{width:220px;height:220px;display:block;border-radius:6px}
+.hint{font-size:.78rem;color:rgba(255,255,255,.35);text-align:center;line-height:1.6}
+.link{font-size:.75rem;color:#c9a84c;word-break:break-all;text-align:center;background:rgba(201,168,76,.07);padding:10px 14px;border-radius:8px;width:100%}
+.acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.btn2{padding:10px 22px;background:transparent;border:1px solid #c9a84c;border-radius:10px;color:#c9a84c;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer}
+.btn2:hover{background:#c9a84c;color:#0d0d0d}
+@media(max-width:480px){.two{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<h1>✦ Crear Mi Tarjeta Digital</h1>
+
+<div class="box">
+  <div class="row"><label>Nombre completo *</label><input id="fn" placeholder="Ej. Ana García"></div>
+  <div class="two">
+    <div class="row"><label>Edad</label><input id="fa" type="number" placeholder="28" min="1" max="120"></div>
+    <div class="row"><label>Sexo</label>
+      <select id="fs">
+        <option value="">—</option>
+        <option>Mujer</option><option>Hombre</option><option>No binario</option>
+      </select>
+    </div>
+  </div>
+  <div class="row"><label>Trabajo / Profesión</label><input id="fj" placeholder="Diseñadora UX"></div>
+  <div class="row"><label>Red social</label><input id="fr" placeholder="@usuario o URL"></div>
+  <div class="row"><label>Descripción corta</label><textarea id="fd" rows="2" maxlength="100" placeholder="Máx. 100 caracteres..."></textarea></div>
+  <div class="row">
+    <label>Color</label>
+    <div class="palette">
+      <div class="sw on" style="background:#1a1a2e" onclick="pc(this,'#1a1a2e')"></div>
+      <div class="sw" style="background:#0d3b2e" onclick="pc(this,'#0d3b2e')"></div>
+      <div class="sw" style="background:#3b1a0d" onclick="pc(this,'#3b1a0d')"></div>
+      <div class="sw" style="background:#1a0d3b" onclick="pc(this,'#1a0d3b')"></div>
+      <div class="sw" style="background:#2c2c2c" onclick="pc(this,'#2c2c2c')"></div>
+      <div class="sw" style="background:#b5451b" onclick="pc(this,'#b5451b')"></div>
+      <div class="sw" style="background:#c9a84c" onclick="pc(this,'#c9a84c')"></div>
+      <div class="sw" style="background:#2e5d8a" onclick="pc(this,'#2e5d8a')"></div>
+    </div>
+  </div>
+  <button class="btn" onclick="gen()">Generar Tarjeta + QR ✦</button>
+</div>
+
+<div class="res" id="res">
+  <h2>✦ QR Listo — ¡Escanéalo!</h2>
+  <div class="qrwrap"><img id="qrimg" src="" alt="QR"></div>
+  
+  <p class="hint">Al escanearlo se abre tu tarjeta visual directamente.<br>Sin apps, sin registros.</p>
+  <div class="acts">
+    <button class="btn2" onclick="dl()">⬇ Descargar QR</button>
+    <button class="btn2" onclick="document.getElementById('res').classList.remove('show')">✏️ Editar</button>
+  </div>
+</div>
+
+<script>
+var col = '#1a1a2e';
+function pc(el,c){document.querySelectorAll('.sw').forEach(function(s){s.classList.remove('on');});el.classList.add('on');col=c;}
+function v(id){return document.getElementById(id).value.trim();}
+
+function gen(){
+  var name=v('fn');
+  if(!name){alert('Escribe tu nombre.');return;}
+
+  // URL muy corta con parámetros de una sola letra
+  var base='https://serzap02.github.io/mi-tarjeta/card.html';
+  var q='?n='+enc(name);
+  if(v('fa')) q+='&a='+enc(v('fa'));
+  if(v('fs')) q+='&s='+enc(v('fs'));
+  if(v('fj')) q+='&j='+enc(v('fj'));
+  if(v('fr')) q+='&r='+enc(v('fr'));
+  if(v('fd')) q+='&d='+enc(v('fd'));
+  q+='&c='+enc(col);
+
+  var url=base+q;
+  document.getElementById('lnk').textContent=url;
+
+  // QR apunta directamente a esa URL
+  var qr='https://api.qrserver.com/v1/create-qr-code/?size=220x220&ecc=M&data='+encodeURIComponent(url);
+  document.getElementById('qrimg').src=qr;
+  document.getElementById('res').classList.add('show');
+  document.getElementById('res').scrollIntoView({behavior:'smooth'});
+}
+
+function enc(s){return encodeURIComponent(s);}
+
+function dl(){
+  var img=document.getElementById('qrimg');
+  fetch(img.src).then(function(r){return r.blob();}).then(function(b){
+    var u=URL.createObjectURL(b);var a=document.createElement('a');
+    a.href=u;a.download='qr-tarjeta.png';a.click();URL.revokeObjectURL(u);
+  }).catch(function(){window.open(img.src,'_blank');});
+}
+</script>
+</body>
+</html>
